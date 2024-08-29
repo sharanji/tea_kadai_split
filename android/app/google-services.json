@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "211154357172-rgq2ofer4q2vi5sr210j2ar809po9s3g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tea_kadai_split",
+            "certificate_hash": "908bf271103b2a954820a0274375ccf1dd8053c9"
+          }
+        },
+        {
           "client_id": "211154357172-p07f4jimc64ed1k27rhc6map7vakekki.apps.googleusercontent.com",
           "client_type": 3
         }
