@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "211154357172",
+    "project_id": "tea-kadai-split",
+    "storage_bucket": "tea-kadai-split.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:211154357172:android:8d8507ddb98142b0c840e1",
+        "android_client_info": {
+          "package_name": "com.example.tea_kadai_split"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "211154357172-pbrs2l5km07thbh1brd7nm9jlcsi5ifs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tea_kadai_split",
+            "certificate_hash": "0496284123b7d3aebd9b35e44212aff40f7a3f8f"
+          }
+        },
+        {
+          "client_id": "211154357172-p07f4jimc64ed1k27rhc6map7vakekki.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwCcFYVkht9rEOv89G0qhgl4n2pifUWX8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "211154357172-p07f4jimc64ed1k27rhc6map7vakekki.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "211154357172-nbeh0eassmg524r4n1ulm220hi6ntioj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.teaKadaiSplit"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

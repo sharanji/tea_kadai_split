@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"tea-kadai-split","appId":"1:211154357172:android:8d8507ddb98142b0c840e1","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"tea-kadai-split","configurations":{"android":"1:211154357172:android:8d8507ddb98142b0c840e1","ios":"1:211154357172:ios:e84bb977c739e97cc840e1"}}}}}}
