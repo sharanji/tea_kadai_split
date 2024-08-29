@@ -30,10 +30,16 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         // mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('Your Groups'),
+          const Padding(
+            padding: EdgeInsets.all(10),
+            child: Text(
+              'Your Groups',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            ),
+          ),
           StreamBuilder(
               stream: FirebaseFirestore.instance
                   .collection('groups')
@@ -55,12 +61,33 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           title: Text(
                             groupInfo['name'],
+                            // style: const TextStyle(fontSize: 13),
+                          ),
+                          subtitle: Text(
+                            groupInfo['description'],
                             style: const TextStyle(fontSize: 13),
                           ),
                           trailing: TextButton(
-                            onPressed: () {},
+                            onPressed: () async {
+                              var transactionId = await FirebaseFirestore.instance
+                                  .collection('groups')
+                                  .doc(g.id)
+                                  .collection('transactions')
+                                  .add({
+                                'timestamp': FieldValue.serverTimestamp(),
+                                'status': false,
+                                'initaited': FirebaseAuth.instance.currentUser!.uid,
+                                'participants': [
+                                  {'user_id': FirebaseAuth.instance.currentUser!.uid, 'amount': 20},
+                                ],
+                              });
+                              Get.to(() => TransactionScreen(
+                                  groupName: groupInfo['name'],
+                                  groupId: g.id,
+                                  transactionRef: transactionId));
+                            },
                             child: const Text(
-                              'start new',
+                              'Open',
                               style: TextStyle(fontSize: 13),
                             ),
                           ),
