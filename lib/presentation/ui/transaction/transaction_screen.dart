@@ -12,7 +12,11 @@ import 'package:tea_kadai_split/presentation/controllers/transaction_controller.
 import 'package:slide_to_act/slide_to_act.dart';
 
 class TransactionScreen extends StatefulWidget {
-  TransactionScreen({super.key, this.groupName = "", this.groupId = "", this.transactionRefid});
+  TransactionScreen(
+      {super.key,
+      this.groupName = "",
+      this.groupId = "",
+      this.transactionRefid});
   final String groupName;
   final String groupId;
   final String? transactionRefid;
@@ -60,7 +64,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    Map transaction = ((snapshot.data!.data() as Map)['participants'] as Map);
+                    Map transaction =
+                        ((snapshot.data!.data() as Map)['participants'] as Map);
 
                     return Column(
                       children: [
@@ -68,12 +73,14 @@ class _TransactionScreenState extends State<TransactionScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(transaction.length.toString()),
-                            Text(snapshot.data!.data()!['payable_amount'].toString()),
+                            Text((snapshot.data!.data()!['payable_amount'])
+                                .toStringAsFixed(2)),
                           ],
                         ),
                         const SizedBox(height: 10),
                         if (transaction.entries
-                            .where((MapEntry t) => t.key == FirebaseAuth.instance.currentUser!.uid)
+                            .where((MapEntry t) =>
+                                t.key == FirebaseAuth.instance.currentUser!.uid)
                             .isEmpty)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -88,13 +95,14 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                     icon: Icon(Icons.currency_rupee),
                                     hintText: 'Enter amount spent',
                                     border: OutlineInputBorder(
-                                      borderSide: BorderSide(color: Colors.black),
+                                      borderSide:
+                                          BorderSide(color: Colors.black),
                                       borderRadius: BorderRadius.all(
                                         Radius.circular(10),
                                       ),
                                     ),
-                                    contentPadding:
-                                        EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        vertical: 0, horizontal: 10),
                                   ),
                                   initialValue: '20',
                                 ),
@@ -107,7 +115,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                       .collection('transactions')
                                       .doc(widget.transactionRefid)
                                       .update({
-                                    'payable_amount': FieldValue.increment(billAmount),
+                                    'payable_amount':
+                                        FieldValue.increment(billAmount),
                                     'participants.${FirebaseAuth.instance.currentUser!.uid}':
                                         billAmount,
                                   });
@@ -174,11 +183,14 @@ class _TransactionScreenState extends State<TransactionScreen> {
             return const CupertinoActivityIndicator();
           }
           List<dynamic> transaction =
-              ((snapshot.data!.data() as Map)['participants'] as Map).entries.toList();
+              ((snapshot.data!.data() as Map)['participants'] as Map)
+                  .entries
+                  .toList();
 
           return Column(
             children: [
-              for (int i = 0; i < transaction.length; i++) transactionMember(transaction[i]),
+              for (int i = 0; i < transaction.length; i++)
+                transactionMember(transaction[i]),
             ],
           );
         });
@@ -186,7 +198,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
   Widget transactionMember(MapEntry transaction) {
     return FutureBuilder(
-      future: FirebaseFirestore.instance.collection('users').doc(transaction.key).get(),
+      future: FirebaseFirestore.instance
+          .collection('users')
+          .doc(transaction.key)
+          .get(),
       builder: (ctx, snapshot) {
         if (!snapshot.hasData) {
           return const CupertinoActivityIndicator();
@@ -194,14 +209,38 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
         Map userInfo = snapshot.data!.data() as Map;
 
-        return ListTile(
-          leading: CircleAvatar(
-            foregroundImage: NetworkImage(userInfo['photoUrl']),
+        return Dismissible(
+          key: Key(transaction.key),
+          direction: DismissDirection.endToStart,
+          onDismissed: (DismissDirection direction) async {
+            await FirebaseFirestore.instance
+                .collection('groups')
+                .doc(widget.groupId)
+                .collection('transactions')
+                .doc(widget.transactionRefid)
+                .update({
+              'payable_amount': FieldValue.increment(-transaction.value),
+              'participants.${transaction.key}': FieldValue.delete()
+            });
+          },
+          background: Container(
+            color: Colors.red,
+            alignment: Alignment.centerRight,
+            padding: EdgeInsets.all(13),
+            child: const Icon(
+              Icons.delete,
+              color: Colors.white,
+            ),
           ),
-          title: Text(userInfo['name']),
-          trailing: Text(
-            '₹ ${transaction.value}',
-            style: const TextStyle(fontSize: 18),
+          child: ListTile(
+            leading: CircleAvatar(
+              foregroundImage: NetworkImage(userInfo['photoUrl']),
+            ),
+            title: Text(userInfo['name']),
+            trailing: Text(
+              '₹ ${transaction.value.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 18),
+            ),
           ),
         );
       },
