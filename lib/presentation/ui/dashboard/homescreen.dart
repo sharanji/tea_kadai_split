@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:tea_kadai_split/presentation/components/bottom_bar.dart';
+import 'package:tea_kadai_split/presentation/ui/transaction/reports.dart';
 import 'package:tea_kadai_split/presentation/ui/transaction/transaction_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -74,6 +75,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 (g) {
                   Map<dynamic, dynamic> groupInfo = g.data() as Map;
                   return ListTile(
+                    onTap: () {
+                      Get.to(
+                        () => GroupReports(
+                          groupName: groupInfo['name'],
+                          groupId: g.id,
+                        ),
+                      );
+                    },
                     leading: CircleAvatar(
                       foregroundImage: NetworkImage(groupInfo['image']),
                     ),

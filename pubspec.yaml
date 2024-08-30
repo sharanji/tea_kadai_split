@@ -43,6 +43,7 @@ dependencies:
   shared_preferences:
   google_sign_in:
   timeago: ^3.7.0
+  slide_to_act: ^2.0.2
   
 dev_dependencies:
   flutter_test:

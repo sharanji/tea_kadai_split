@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:tea_kadai_split/presentation/controllers/transaction_controller.dart';
+import 'package:slide_to_act/slide_to_act.dart';
 
 class TransactionScreen extends StatefulWidget {
   TransactionScreen({super.key, this.groupName = "", this.groupId = "", this.transactionRefid});
@@ -78,7 +79,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               SizedBox(
-                                width: 210,
+                                width: 200,
                                 child: TextFormField(
                                   onChanged: (value) {
                                     billAmount = double.parse(value);
@@ -127,6 +128,33 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   }
                   return const CupertinoActivityIndicator();
                 }),
+            Builder(
+              builder: (context) {
+                final GlobalKey<SlideActionState> _key = GlobalKey();
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SlideAction(
+                    key: _key,
+                    height: 50,
+                    sliderButtonIconSize: 10,
+                    onSubmit: () async {
+                      await FirebaseFirestore.instance
+                          .collection('groups')
+                          .doc(widget.groupId)
+                          .collection('transactions')
+                          .doc(widget.transactionRefid)
+                          .update({'status': true});
+
+                      _key.currentState!.reset();
+                      Navigator.of(context).pop();
+                    },
+                    innerColor: Colors.black,
+                    outerColor: Colors.white,
+                    child: const Text('Close Bill'),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
