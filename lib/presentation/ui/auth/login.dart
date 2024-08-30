@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -26,12 +27,14 @@ class _LoginScreenState extends State<LoginScreen> {
             onTap: () async {
               await signInWithGoogle();
               if (FirebaseAuth.instance.currentUser != null) {
+                // await FirebaseMessaging.instance.requestPermission();
                 var usercred = FirebaseAuth.instance.currentUser;
-
+                // var notificationtoken  =FirebaseMessaging.instance.getToken();
                 FirebaseFirestore.instance.collection('users').doc(usercred!.uid).set({
                   'name': usercred.displayName,
                   'email': usercred.email,
                   'photoUrl': usercred.photoURL,
+                  // 'notification_token':notificationtoken,
                 }).then((value) {
                   Get.toEnd(() => const HomeScreen());
                 });

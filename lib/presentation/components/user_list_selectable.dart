@@ -15,6 +15,8 @@ class _UserListSelectableState extends State<UserListSelectable> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+    
+      tileColor: widget.personTransact.value > 0 ? Colors.white:Color.fromARGB(255, 251, 190, 67),
       onTap: () {
         setState(() {
           isSelected = !isSelected;
