@@ -78,10 +78,12 @@ class _TransactionScreenState extends State<TransactionScreen> {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        if (transaction.entries
-                            .where((MapEntry t) =>
-                                t.key == FirebaseAuth.instance.currentUser!.uid)
-                            .isEmpty)
+                        if (!snapshot.data!.data()!['status'] &&
+                            transaction.entries
+                                .where((MapEntry t) =>
+                                    t.key ==
+                                    FirebaseAuth.instance.currentUser!.uid)
+                                .isEmpty)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -132,38 +134,61 @@ class _TransactionScreenState extends State<TransactionScreen> {
                               ),
                             ],
                           ),
+                        if (!snapshot.data!.data()!['status'] &&
+                            snapshot.data!.data()!['initaited'] ==
+                                FirebaseAuth.instance.currentUser!.uid &&
+                            transaction.entries
+                                .where((MapEntry t) =>
+                                    t.key ==
+                                    FirebaseAuth.instance.currentUser!.uid)
+                                .isNotEmpty)
+                          Builder(
+                            builder: (context) {
+                              final GlobalKey<SlideActionState> _key =
+                                  GlobalKey();
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SlideAction(
+                                  key: _key,
+                                  height: 50,
+                                  sliderButtonIconSize: 10,
+                                  onSubmit: () async {
+                                    // _key.currentState!.reset();
+                                    await FirebaseFirestore.instance
+                                        .collection('groups')
+                                        .doc(widget.groupId)
+                                        .collection('transactions')
+                                        .doc(widget.transactionRefid)
+                                        .update({'status': true});
+
+                                  },
+                                  innerColor: Colors.black,
+                                  outerColor: Colors.white,
+                                  child: const Text('Swipe to Close Bill'),
+                                ),
+                              );
+                            },
+                          ),
+                          if(snapshot.data!.data()!['initaited'] !=
+                                FirebaseAuth.instance.currentUser!.uid || snapshot.data!.data()!['status'])
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                                color: Colors.green,
+                                borderRadius: BorderRadius.circular(10)),
+                            child:  Text(
+                            snapshot.data!.data()!['status'] ?  'This Bill Has Been Closed' : 'Waiting for Bill Close',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                       ],
                     );
                   }
                   return const CupertinoActivityIndicator();
                 }),
-            Builder(
-              builder: (context) {
-                final GlobalKey<SlideActionState> _key = GlobalKey();
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SlideAction(
-                    key: _key,
-                    height: 50,
-                    sliderButtonIconSize: 10,
-                    onSubmit: () async {
-                      await FirebaseFirestore.instance
-                          .collection('groups')
-                          .doc(widget.groupId)
-                          .collection('transactions')
-                          .doc(widget.transactionRefid)
-                          .update({'status': true});
-
-                      _key.currentState!.reset();
-                      Navigator.of(context).pop();
-                    },
-                    innerColor: Colors.black,
-                    outerColor: Colors.white,
-                    child: const Text('Close Bill'),
-                  ),
-                );
-              },
-            ),
           ],
         ),
       ),

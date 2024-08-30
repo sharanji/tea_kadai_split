@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:tea_kadai_split/presentation/components/bottom_bar.dart';
+import 'package:tea_kadai_split/presentation/services/transaction_reports.dart';
 import 'package:tea_kadai_split/presentation/ui/transaction/reports.dart';
 import 'package:tea_kadai_split/presentation/ui/transaction/transaction_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -94,28 +96,27 @@ class _HomeScreenState extends State<HomeScreen> {
                       groupInfo['description'],
                       style: const TextStyle(fontSize: 13),
                     ),
-                    trailing: TextButton(
-                      onPressed: () async {
-                        var transactionId = await FirebaseFirestore.instance
-                            .collection('groups')
-                            .doc(g.id)
-                            .collection('transactions')
-                            .add({
-                          'timestamp': FieldValue.serverTimestamp(),
-                          'status': false,
-                          'initaited': FirebaseAuth.instance.currentUser!.uid,
-                          'payable_amount': 0,
-                          'participants': {}
-                          // {'user_id': FirebaseAuth.instance.currentUser!.uid, 'amount': 20},
-                        });
-                        Get.to(() => TransactionScreen(
-                            groupName: groupInfo['name'],
-                            groupId: g.id,
-                            transactionRefid: transactionId.id));
+                    trailing: GestureDetector(
+                     
+                      onTap: () async {
+                       await TransactionReports.openNewTransAction(g.id,groupInfo);
                       },
-                      child: const Text(
-                        'Open',
-                        style: TextStyle(fontSize: 13),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          border: Border.all(),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child:const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.add),
+                             Text(
+                              'Open New',
+                              style: TextStyle(fontSize: 13),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
