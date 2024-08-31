@@ -59,10 +59,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDonR8WYzUhl76XpjqdXluHf7q9E3YTCg8',
-    appId: '1:211154357172:ios:e84bb977c739e97cc840e1',
+    appId: '1:211154357172:ios:0c9a8fe3831a361cc840e1',
     messagingSenderId: '211154357172',
     projectId: 'tea-kadai-split',
     storageBucket: 'tea-kadai-split.appspot.com',
+    androidClientId: '211154357172-d1uqkf48vfo8hst3g09gcemugmf09hr2.apps.googleusercontent.com',
+    iosClientId: '211154357172-nbeh0eassmg524r4n1ulm220hi6ntioj.apps.googleusercontent.com',
     iosBundleId: 'com.example.teaKadaiSplit',
   );
 }

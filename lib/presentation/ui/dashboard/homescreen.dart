@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -64,7 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('groups')
-            .where('members', arrayContains: FirebaseAuth.instance.currentUser!.uid)
+            .where('members',
+                arrayContains: FirebaseAuth.instance.currentUser!.uid)
             .snapshots(),
         builder: (ctx, snapshot) {
           if (!snapshot.hasData) {
@@ -97,9 +97,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: const TextStyle(fontSize: 13),
                     ),
                     trailing: GestureDetector(
-                     
                       onTap: () async {
-                       await TransactionReports.openNewTransAction(g.id,groupInfo);
+                        await TransactionReports.openNewTransAction(
+                            g.id, groupInfo);
                       },
                       child: Container(
                         padding: const EdgeInsets.all(6),
@@ -107,11 +107,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           border: Border.all(),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child:const Row(
+                        child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(Icons.add),
-                             Text(
+                            Text(
                               'Open New',
                               style: TextStyle(fontSize: 13),
                             ),
@@ -131,7 +131,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('groups')
-            .where('members', arrayContains: FirebaseAuth.instance.currentUser!.uid)
+            .where('members',
+                arrayContains: FirebaseAuth.instance.currentUser!.uid)
             .snapshots(),
         builder: (ctx, snapshot) {
           if (!snapshot.hasData) {
@@ -154,27 +155,30 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             ...snapshot.data!.docs.map((transaction) {
                               if (transaction.data().containsKey('timestamp') &&
-                                  transaction.data()['timestamp'].runtimeType == Timestamp) {
-                                DateTime currentdatetime =
-                                    (transaction.data()['timestamp'] as Timestamp).toDate();
+                                  transaction.data()['timestamp'].runtimeType ==
+                                      Timestamp) {
+                                DateTime currentdatetime = (transaction
+                                        .data()['timestamp'] as Timestamp)
+                                    .toDate();
 
                                 return ListTile(
-                                  title: Text((groups[i].data()! as Map)['name']),
-                                  subtitle: Text(timeago.format(currentdatetime)),
-                                  trailing: TextButton(
-                                    onPressed: () async {
-                                      Get.to(
-                                        () => TransactionScreen(
-                                          groupName: (groups[i].data()! as Map)['name'],
-                                          groupId: groups[i].id,
-                                          transactionRefid: transaction.id,
-                                        ),
-                                      );
-                                    },
-                                    child: const Text(
-                                      'Open',
-                                      style: TextStyle(fontSize: 13),
-                                    ),
+                                  onTap: () {
+                                    Get.to(
+                                      () => TransactionScreen(
+                                        groupName:
+                                            (groups[i].data()! as Map)['name'],
+                                        groupId: groups[i].id,
+                                        transactionRefid: transaction.id,
+                                      ),
+                                    );
+                                  },
+                                  title:
+                                      Text((groups[i].data()! as Map)['name']),
+                                  subtitle:
+                                      Text(timeago.format(currentdatetime)),
+                                  trailing: const Text(
+                                    'Open',
+                                    style: TextStyle(fontSize: 13),
                                   ),
                                 );
                               }

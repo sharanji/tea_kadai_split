@@ -33,6 +33,7 @@ class _GroupReportsState extends State<GroupReports> {
   List transactions = [];
   List selectableTrans = [];
   List selectedTrans = [];
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -42,7 +43,7 @@ class _GroupReportsState extends State<GroupReports> {
         transactions = value;
         selectableTrans = transactions
             .where((t) =>
-                t['recevier_id'] != FirebaseAuth.instance.currentUser!.uid)
+                t['recevier_id'] == FirebaseAuth.instance.currentUser!.uid)
             .toList();
       });
     });
@@ -78,13 +79,53 @@ class _GroupReportsState extends State<GroupReports> {
                     const Text('Select All'),
                     const Spacer(),
                     if (selectedTrans.isNotEmpty)
-                      GestureDetector(
-                        onTap: () {},
-                        child:  Text(
-                          'Mark as Received',
-                          style: TextStyle(color: Theme.of(context).primaryColor),
-                        ),
-                      )
+                      isLoading
+                          ? const CupertinoActivityIndicator()
+                          : GestureDetector(
+                              onTap: () async {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                for (var i = 0; i < selectedTrans.length; i++) {
+                                  await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(selectedTrans[i]['recevier_id'])
+                                      .update({
+                                    'credit_wallet.${widget.groupId}':
+                                        FieldValue.increment(
+                                            selectedTrans[i]['amount'])
+                                  });
+                                  await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(selectedTrans[i]['payer_id'])
+                                      .update({
+                                    'credit_wallet.${widget.groupId}':
+                                        FieldValue.increment(
+                                            -selectedTrans[i]['amount'])
+                                  });
+
+                                  transactionController
+                                      .getGroupTransactions(widget.groupId)
+                                      .then((value) {
+                                    setState(() {
+                                      transactions = value;
+                                      selectableTrans = transactions
+                                          .where((t) =>
+                                              t['recevier_id'] !=
+                                              FirebaseAuth
+                                                  .instance.currentUser!.uid)
+                                          .toList();
+                                      isLoading = false;
+                                    });
+                                  });
+                                }
+                              },
+                              child: Text(
+                                'Mark as Received',
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryColor),
+                              ),
+                            )
                   ],
                 ),
               ),

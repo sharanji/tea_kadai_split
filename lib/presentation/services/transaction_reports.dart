@@ -40,6 +40,7 @@ class TransactionReports {
           groupId: groupId,
           transactionRefid: transactionId.id),
     );
+
   }
 
   static List monthlyGroupTally(List docs) {
@@ -163,8 +164,10 @@ class TransactionReports {
 
       if ((credits[i]['credit'] + debits[j]['credit']) == 0) {
         transDetails['pays'] = credits[i]['name'];
-        transDetails['recevies'] = debits[j]['name']; 
+        transDetails['recevies'] = debits[j]['name'];
         transDetails['recevier_id'] = debits[j]['id'];
+        transDetails['amount'] = credits[i]['credit'];
+        transDetails['payer_id'] = credits[i]['id'];
         transDetails['desc'] =
             '${credits[i]['name']} Pays ₹ ${credits[i]['credit']} to ${debits[j]['name']}';
 
@@ -176,6 +179,8 @@ class TransactionReports {
         transDetails['pays'] = credits[i]['name'];
         transDetails['recevies'] = debits[j]['name'];
         transDetails['recevier_id'] = debits[j]['id'];
+        transDetails['amount'] = credits[i]['credit'];
+        transDetails['payer_id'] = credits[i]['id'];
         transDetails['desc'] =
             '${credits[i]['name']} Pays ₹ ${credits[i]['credit']} to ${debits[j]['name']}';
 
@@ -186,6 +191,8 @@ class TransactionReports {
         transDetails['pays'] = credits[i]['name'];
         transDetails['recevies'] = debits[j]['name'];
         transDetails['recevier_id'] = debits[j]['id'];
+        transDetails['amount'] = credits[i]['credit'];
+        transDetails['payer_id'] = credits[i]['id'];
         transDetails['desc'] =
             '${credits[i]['name']} Pays ₹ ${(debits[j]['credit']).abs()} to ${debits[j]['name']}';
 
