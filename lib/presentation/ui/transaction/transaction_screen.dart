@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:tea_kadai_split/presentation/controllers/transaction_controller.dart';
 import 'package:slide_to_act/slide_to_act.dart';
+import 'package:tea_kadai_split/presentation/services/transaction_reports.dart';
 
 class TransactionScreen extends StatefulWidget {
   TransactionScreen(
@@ -28,6 +29,8 @@ class TransactionScreen extends StatefulWidget {
 class _TransactionScreenState extends State<TransactionScreen> {
   TransactionController transactionController = Get.find();
   double billAmount = 20.0;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,55 +87,67 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                     t.key ==
                                     FirebaseAuth.instance.currentUser!.uid)
                                 .isEmpty)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              SizedBox(
-                                width: 200,
-                                child: TextFormField(
-                                  onChanged: (value) {
-                                    billAmount = double.parse(value);
-                                  },
-                                  decoration: const InputDecoration(
-                                    icon: Icon(Icons.currency_rupee),
-                                    hintText: 'Enter amount spent',
-                                    border: OutlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(10),
+                          Form(
+                            key: _formKey,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  width: 200,
+                                  child: TextFormField(
+                                    validator: (value) {
+                                      try {
+                                        double dVal = double.parse(value!);
+                                        if (dVal < 0) {
+                                          return "Invalid Amount";
+                                        }
+                                      } catch (e) {
+                                        return "Invalid Amount";
+                                      }
+
+                                      return null;
+                                    },
+                                    decoration: const InputDecoration(
+                                      icon: Icon(Icons.currency_rupee),
+                                      hintText: 'Enter amount spent',
+                                      border: OutlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.black),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(10),
+                                        ),
                                       ),
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: 0, horizontal: 10),
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(
-                                        vertical: 0, horizontal: 10),
+                                    keyboardType: TextInputType.number,
+                                    onSaved: (value) {
+                                      billAmount = double.parse(value!);
+                                    },
+                                    initialValue: '20',
                                   ),
-                                  initialValue: '20',
                                 ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  FirebaseFirestore.instance
-                                      .collection('groups')
-                                      .doc(widget.groupId)
-                                      .collection('transactions')
-                                      .doc(widget.transactionRefid)
-                                      .update({
-                                    'payable_amount':
-                                        FieldValue.increment(billAmount),
-                                    'participants.${FirebaseAuth.instance.currentUser!.uid}':
-                                        billAmount,
-                                  });
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(13),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(),
+                                GestureDetector(
+                                  onTap: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      _formKey.currentState!.save();
+                                      TransactionReports.addMyBill(
+                                          widget.groupId,
+                                          widget.transactionRefid,
+                                          billAmount);
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(13),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(),
+                                    ),
+                                    child: const Text('Add Bill'),
                                   ),
-                                  child: const Text('Add Bill'),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         if (!snapshot.data!.data()!['status'] &&
                             snapshot.data!.data()!['initaited'] ==
@@ -153,14 +168,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                   height: 50,
                                   sliderButtonIconSize: 10,
                                   onSubmit: () async {
-                                    // _key.currentState!.reset();
-                                    await FirebaseFirestore.instance
-                                        .collection('groups')
-                                        .doc(widget.groupId)
-                                        .collection('transactions')
-                                        .doc(widget.transactionRefid)
-                                        .update({'status': true});
-
+                                    TransactionReports.closeBill(
+                                      widget.groupId,
+                                      widget.transactionRefid,
+                                    );
                                   },
                                   innerColor: Colors.black,
                                   outerColor: Colors.white,
@@ -169,15 +180,18 @@ class _TransactionScreenState extends State<TransactionScreen> {
                               );
                             },
                           ),
-                          if(snapshot.data!.data()!['initaited'] !=
-                                FirebaseAuth.instance.currentUser!.uid || snapshot.data!.data()!['status'])
+                        if (snapshot.data!.data()!['initaited'] !=
+                                FirebaseAuth.instance.currentUser!.uid ||
+                            snapshot.data!.data()!['status'])
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                                 color: Colors.green,
                                 borderRadius: BorderRadius.circular(10)),
-                            child:  Text(
-                            snapshot.data!.data()!['status'] ?  'This Bill Has Been Closed' : 'Waiting for Bill Close',
+                            child: Text(
+                              snapshot.data!.data()!['status']
+                                  ? 'This Bill Has Been Closed'
+                                  : 'Waiting for Bill Close',
                               style: const TextStyle(
                                 fontSize: 13,
                                 color: Colors.white,
@@ -236,7 +250,9 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
         return Dismissible(
           key: Key(transaction.key),
-          direction: DismissDirection.endToStart,
+          direction: FirebaseAuth.instance.currentUser!.uid == transaction.key
+              ? DismissDirection.endToStart
+              : DismissDirection.none,
           onDismissed: (DismissDirection direction) async {
             await FirebaseFirestore.instance
                 .collection('groups')
