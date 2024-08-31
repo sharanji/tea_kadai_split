@@ -1,124 +1,136 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 import 'package:tea_kadai_split/presentation/components/user_list_selectable.dart';
+import 'package:tea_kadai_split/presentation/controllers/transaction_controller.dart';
 import 'package:tea_kadai_split/presentation/services/transaction_reports.dart';
+import 'package:tea_kadai_split/presentation/ui/transaction/transaction_screen.dart';
 import 'package:timeago/timeago.dart';
 import 'package:intl/intl.dart';
 
-class GroupReports extends StatelessWidget {
+class GroupReports extends StatefulWidget {
   const GroupReports({super.key, this.groupName = "", this.groupId = ""});
 
   final String groupName;
   final String groupId;
 
   @override
+  State<GroupReports> createState() => _GroupReportsState();
+}
+
+class _GroupReportsState extends State<GroupReports> {
+  TransactionController transactionController = Get.find();
+  bool isSelectAll = false;
+  List transactions = [];
+  List selectableTrans = [];
+  List selectedTrans = [];
+
+  @override
+  void initState() {
+    super.initState();
+    transactionController.getGroupTransactions(widget.groupId).then((value) {
+      setState(() {
+        transactions = value;
+        selectableTrans = transactions
+            .where((t) =>
+                t['recevier_id'] != FirebaseAuth.instance.currentUser!.uid)
+            .toList();
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(groupName),
+        title: Text(widget.groupName),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            reports(),
+            if (selectableTrans.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: toggleSelectAll,
+                      child: Container(
+                        width: 10,
+                        height: 10,
+                        margin: const EdgeInsets.only(left: 10, right: 10),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          color: isSelectAll ? Colors.black : null,
+                        ),
+                      ),
+                    ),
+                    const Text('Select All'),
+                    const Spacer(),
+                    if (selectedTrans.isNotEmpty)
+                      GestureDetector(
+                        onTap: () {},
+                        child:  Text(
+                          'Mark as Received',
+                          style: TextStyle(color: Theme.of(context).primaryColor),
+                        ),
+                      )
+                  ],
+                ),
+              ),
+            userListing(),
           ],
         ),
       ),
-      bottomSheet: Wrap(
-        children: [
-          Builder(
-              builder: (context) {
-                final GlobalKey<SlideActionState> _key = GlobalKey();
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SlideAction(
-                    key: _key,
-                    height: 50,
-                    sliderButtonIconSize: 10,
-                    onSubmit: () async {
-                    
-                    },
-                    innerColor: Colors.black,
-                    outerColor: Colors.white,
-                    child: const Text('Close Report'),
-                  ),
-                );
-              },
-            ),
-        ],
-      ),
     );
   }
 
-  Widget reports() {
-    return FutureBuilder(
-        future: FirebaseFirestore.instance
-            .collection('groups')
-            .doc(groupId)
-            .collection('transactions')
-            .where('status', isEqualTo: true)
-            .get(),
-        builder: (ctx, snapShot) {
-          if (snapShot.hasData) {
-            List tallyReports =
-                TransactionReports.monthlyGroupTally(snapShot.data!.docs);
-            Map<dynamic, dynamic> peopletally = tallyReports.first;
-            DateTime startTime = tallyReports[1];
-            DateTime endTime = tallyReports.last;
-
-            return userListing(peopletally, startTime, endTime);
-          }
-          return const CupertinoActivityIndicator();
-        });
-  }
-
-  Widget userListing(Map peopletally, startTime, endTime) {
-    DateTime now = DateTime.now();
-
+  Widget userListing() {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const Text('From: '),
-                  Text(DateFormat('dd-MM-y').format(startTime)),
-                ],
-              ),
-              Row(
-                children: [
-                  const Text('To: '),
-                  Text(DateFormat('dd-MM-y').format(endTime)),
-                ],
-              )
-            ],
-          ),
-        ),
-        ...peopletally.entries.map(
-          (personTransact) => FutureBuilder(
-            future: FirebaseFirestore.instance
-                .collection('users')
-                .doc(personTransact.key)
-                .get(),
-            builder: (ctx, snapShot) {
-              if (!snapShot.hasData) {
-                return const CupertinoActivityIndicator();
-              }
-              Map? userInfo = snapShot.data!.data();
-              return UserListSelectable(
-                  userInfo: userInfo!, personTransact: personTransact);
-            },
-          ),
-        ),
+        ...transactions.map((t) => UserListSelectable(
+              transact: t,
+              isSelected: selectedTrans.contains(t),
+              onSelect: selectTransact,
+            )),
       ],
     );
+  }
+
+  void toggleSelectAll() {
+    if (isSelectAll) {
+      selectedTrans = [];
+    } else {
+      selectedTrans = selectableTrans;
+    }
+
+    setState(() {
+      isSelectAll = !isSelectAll;
+    });
+  }
+
+  void selectTransact(isRemove, trans) {
+    if (isRemove) {
+      selectedTrans.remove(trans);
+    } else {
+      selectedTrans.add(trans);
+    }
+    if (selectedTrans.length == selectableTrans.length) {
+      isSelectAll = true;
+    } else {
+      isSelectAll = false;
+    }
+
+    setState(() {});
   }
 }
