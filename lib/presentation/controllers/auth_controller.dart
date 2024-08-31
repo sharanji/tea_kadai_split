@@ -9,9 +9,10 @@ class AuthController extends GetxController {
 
   Rx<User>? currentUser;
   RxString userName = "".obs;
+  RxString photoUrl = "".obs;
   RxInt navIndex = 0.obs;
   RxMap userDetails = {}.obs;
-
+  RxDouble totalCreditBalance = 0.0.obs;
   @override
   void onReady() {
     super.onReady();
@@ -54,7 +55,12 @@ class AuthController extends GetxController {
       DocumentSnapshot userDoc =
           await fireStore.collection('users').doc(currentUser!.value.uid).get();
       userName.value = userDoc['name'];
+      photoUrl.value = userDoc['photoUrl'];
       userDetails.value = userDoc.data()! as Map;
+      totalCreditBalance.value = userDoc['credit_wallet'].values
+      .where((value) => value is num) // Ensure the value is a number (int or double)
+      .fold(0.0, (sum, value) => sum + (value as num).toDouble());
+     
     }
   }
 }

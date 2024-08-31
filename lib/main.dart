@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tea_kadai_split/firebase_options.dart';
+import 'package:tea_kadai_split/presentation/controllers/auth_controller.dart';
 import 'package:tea_kadai_split/presentation/controllers/transaction_controller.dart';
 import 'package:tea_kadai_split/presentation/ui/auth/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 import 'package:tea_kadai_split/presentation/ui/dashboard/homescreen.dart';
+import 'package:tea_kadai_split/theme/themes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,15 +23,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Tea Kadai Split',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: MyTheme('KumbhSans').lightTheme,
       home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
             Get.put(TransactionController());
+            Get.put(AuthController());
             if (snapshot.hasData && snapshot.data!.email != null) {
               return const HomeScreen();
             }
