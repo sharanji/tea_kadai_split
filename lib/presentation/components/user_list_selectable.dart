@@ -54,7 +54,7 @@ class _UserListSelectableState extends State<UserListSelectable> {
             ),
             const Icon(Icons.arrow_right),
             Text(
-              widget.transact['recevies'],
+              widget.transact['receives'],
               style: const TextStyle(color: Colors.green),
             ),
           ],
