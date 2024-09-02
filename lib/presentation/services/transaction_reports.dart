@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:tea_kadai_split/presentation/ui/transaction/transaction_screen.dart';
 
+import 'dart:math';
+
 class TransactionReports {
   static int sortCoparator(a, b) =>
       ((b['credit'] * 1.0) - (a['credit'] * 1.0)).toInt();
@@ -130,76 +132,53 @@ class TransactionReports {
     }
   }
 
-  static List<Map> getUsertallys(
-      List<QueryDocumentSnapshot> creditwallets, String groupid) {
+  static List<Map> getUserTallys(
+      List<QueryDocumentSnapshot> creditWallets, String groupId) {
     List<Map> credits = [];
     List<Map> debits = [];
 
-    for (var i = 0; i < creditwallets.length; i++) {
-      Map currentUser = creditwallets[i].data() as Map;
+    for (var doc in creditWallets) {
+      Map currentUser = doc.data() as Map;
+      double creditAmount = currentUser['credit_wallet'][groupId] * 1.0;
 
-      Map creditsMap = {
-        "id": creditwallets[i].id,
-        "name": currentUser['name'],
-        "credit": currentUser['credit_wallet'][groupid],
-      };
-
-      if (creditsMap['credit'] > 0) {
-        credits.add(creditsMap);
-      } else if (creditsMap['credit'] < 0) {
-        debits.add(creditsMap);
+      if (creditAmount != 0) {
+        Map transactionMap = {
+          "id": doc.id,
+          "name": currentUser['name'],
+          "credit": creditAmount,
+        };
+        (creditAmount > 0 ? credits : debits).add(transactionMap);
       }
     }
 
-    credits.sort((a, b) => ((b['credit'] * 1.0) - (a['credit'] * 1.0)).toInt());
-    debits.sort((b, a) => ((b['credit'] * 1.0) - (a['credit'] * 1.0)).toInt());
+    credits.sort((a, b) => b['credit'].compareTo(a['credit']));
+    debits.sort((a, b) => a['credit'].compareTo(b['credit']));
 
     int i = 0;
     int j = 0;
     List<Map> transactions = [];
 
     while (i < credits.length && j < debits.length) {
-      Map transDetails = {};
+      double credit = credits[i]['credit'];
+      double debit = debits[j]['credit'];
+      double amount = min(credit.abs(), debit.abs());
 
-      if ((credits[i]['credit'] + debits[j]['credit']) == 0) {
-        transDetails['pays'] = credits[i]['name'];
-        transDetails['recevies'] = debits[j]['name']; 
-        transDetails['recevier_id'] = debits[j]['id'];
-        transDetails['desc'] =
-            '${credits[i]['name']} Pays ₹ ${credits[i]['credit']} to ${debits[j]['name']}';
+      transactions.add({
+        'pays': credits[i]['name'],
+        'receives': debits[j]['name'],
+        'receiver_id': debits[j]['id'],
+        'amount': amount,
+        'payer_id': credits[i]['id'],
+        'desc': '${credits[i]['name']} pays ₹ $amount to ${debits[j]['name']}',
+      });
 
-        credits[i]['credit'] = 0;
-        debits[j]['credit'] = 0;
-        i++;
-        j++;
-      } else if ((credits[i]['credit'] + debits[j]['credit']) < 0) {
-        transDetails['pays'] = credits[i]['name'];
-        transDetails['recevies'] = debits[j]['name'];
-        transDetails['recevier_id'] = debits[j]['id'];
-        transDetails['desc'] =
-            '${credits[i]['name']} Pays ₹ ${credits[i]['credit']} to ${debits[j]['name']}';
+      credits[i]['credit'] -= amount;
+      debits[j]['credit'] += amount;
 
-        debits[j]['credit'] = credits[i]['credit'] + debits[j]['credit'];
-        credits[i]['credit'] = 0;
-        i++;
-      } else {
-        transDetails['pays'] = credits[i]['name'];
-        transDetails['recevies'] = debits[j]['name'];
-        transDetails['recevier_id'] = debits[j]['id'];
-        transDetails['desc'] =
-            '${credits[i]['name']} Pays ₹ ${(debits[j]['credit']).abs()} to ${debits[j]['name']}';
-
-        credits[i]['credit'] = credits[i]['credit'] + debits[j]['credit'];
-        debits[j]['credit'] = 0;
-        j++;
-      }
-
-      transactions.add(transDetails);
+      if (credits[i]['credit'] == 0) i++;
+      if (debits[j]['credit'] == 0) j++;
     }
 
-    // print(credits);
-    // print(debits);
-    // print(transactions);
     return transactions;
   }
 }

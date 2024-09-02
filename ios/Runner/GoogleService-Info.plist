@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>211154357172-6t969e41lbk2t3adm01fvhk6ed3ct8ai.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.211154357172-6t969e41lbk2t3adm01fvhk6ed3ct8ai</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>211154357172-d1uqkf48vfo8hst3g09gcemugmf09hr2.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDonR8WYzUhl76XpjqdXluHf7q9E3YTCg8</string>
+	<key>GCM_SENDER_ID</key>
+	<string>211154357172</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.jesperapps.teakadaisplit</string>
+	<key>PROJECT_ID</key>
+	<string>tea-kadai-split</string>
+	<key>STORAGE_BUCKET</key>
+	<string>tea-kadai-split.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:211154357172:ios:2ba189050ba2ef7fc840e1</string>
+</dict>
+</plist>

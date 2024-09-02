@@ -22,7 +22,6 @@ class UserListSelectable extends StatefulWidget {
 
 class _UserListSelectableState extends State<UserListSelectable> {
   TransactionController transactionController = Get.find();
-
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -31,7 +30,7 @@ class _UserListSelectableState extends State<UserListSelectable> {
               widget.onSelect!(widget.isSelected, widget.transact);
             }
           : null,
-      leading: (widget.transact['recevier_id'] !=
+      leading: (widget.transact['recevier_id'] ==
               FirebaseAuth.instance.currentUser!.uid)
           ? Container(
               width: 10,
@@ -45,18 +44,21 @@ class _UserListSelectableState extends State<UserListSelectable> {
               ),
             )
           : null,
-      title: Row(
-        children: [
-          Text(
-            widget.transact['pays'],
-            style: const TextStyle(color: Colors.red),
-          ),
-          const Icon(Icons.arrow_right),
-          Text(
-            widget.transact['recevies'],
-            style: const TextStyle(color: Colors.green),
-          ),
-        ],
+      title: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            Text(
+              widget.transact['pays'],
+              style: const TextStyle(color: Colors.red),
+            ),
+            const Icon(Icons.arrow_right),
+            Text(
+              widget.transact['receives'],
+              style: const TextStyle(color: Colors.green),
+            ),
+          ],
+        ),
       ),
       subtitle: Text(
         widget.transact['desc'],

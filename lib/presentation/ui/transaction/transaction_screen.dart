@@ -51,6 +51,36 @@ class _TransactionScreenState extends State<TransactionScreen> {
           // height: 100,
 
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+               const  Text('Bill opened by : '),
+                FutureBuilder(
+                    future: FirebaseFirestore.instance
+                        .collection('groups')
+                        .doc(widget.groupId)
+                        .collection('transactions')
+                        .doc(widget.transactionRefid)
+                        .get(),
+                    builder: (ctx, snapshot) {
+                      if (snapshot.hasData) {
+                        return FutureBuilder(
+                            future: FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(snapshot.data!.data()!['initaited'])
+                                .get(),
+                            builder: (ctx, snapshot) {
+                              if (snapshot.hasData) {
+                                return Text(snapshot.data!.data()!['name']);
+                              }
+                              return const CupertinoActivityIndicator();
+                            });
+                      }
+                      return const CupertinoActivityIndicator();
+                    }),
+              ],
+            ),
+            const Divider(),
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -185,6 +215,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                             snapshot.data!.data()!['status'])
                           Container(
                             padding: const EdgeInsets.all(8),
+                            margin: const EdgeInsets.only(top: 15),
                             decoration: BoxDecoration(
                                 color: Colors.green,
                                 borderRadius: BorderRadius.circular(10)),

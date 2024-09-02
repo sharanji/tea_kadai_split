@@ -57,9 +57,6 @@ class AuthController extends GetxController {
       userName.value = userDoc['name'];
       photoUrl.value = userDoc['photoUrl'];
       userDetails.value = userDoc.data()! as Map;
-      totalCreditBalance.value = userDoc['credit_wallet'].values
-      .where((value) => value is num) // Ensure the value is a number (int or double)
-      .fold(0.0, (sum, value) => sum + (value as num).toDouble());
      
     }
   }

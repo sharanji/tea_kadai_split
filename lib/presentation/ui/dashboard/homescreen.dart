@@ -23,68 +23,84 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.only(top: 50.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const AppLogo(),
-            const SizedBox(
-              height: 10,
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 12.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      // Container(
-                      //   width: 60, // Adjust the size as needed
-                      //   height: 60,
-                      //   decoration: BoxDecoration(
-                      //     shape: BoxShape.circle,
-                      //     border: Border.all(
-                      //       color: Colors.blue, // Border color
-                      //       width: .0, // Border width
-                      //     ),
-                      //   ),
-                      //   child: ClipOval(
-                      //     child: Image.network(
-                      //       authController.photoUrl.value,
-                      //       fit: BoxFit.cover,
-                      //       errorBuilder: (context, error, stackTrace) =>
-                      //           const Icon(Icons
-                      //               .error), // Handles image loading errors
-                      //     ),
-                      //   ),
-                      // ),
-                      // const SizedBox(
-                      //   width: 7,
-                      // ),
-                      Text(
-                        'Hello, ${authController.userName.value}',
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w600),
-                      )
-                    ],
-                  ),
-                ],
+      body: Obx(
+        () => Padding(
+          padding: const EdgeInsets.only(top: 50.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const AppLogo(),
+              const SizedBox(
+                height: 10,
               ),
-            ),
-            CreditBalanceWidget(totalCreditBalance: authController.totalCreditBalance.value),
-            
-            pendingtransactions(),
-            const Padding(
-              padding: EdgeInsets.all(10),
-              child: Text(
-                'Your Groups',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        // Container(
+                        //   width: 60, // Adjust the size as needed
+                        //   height: 60,
+                        //   decoration: BoxDecoration(
+                        //     shape: BoxShape.circle,
+                        //     border: Border.all(
+                        //       color: Colors.blue, // Border color
+                        //       width: .0, // Border width
+                        //     ),
+                        //   ),
+                        //   child: ClipOval(
+                        //     child: Image.network(
+                        //       authController.photoUrl.value,
+                        //       fit: BoxFit.cover,
+                        //       errorBuilder: (context, error, stackTrace) =>
+                        //           const Icon(Icons
+                        //               .error), // Handles image loading errors
+                        //     ),
+                        //   ),
+                        // ),
+                        // const SizedBox(
+                        //   width: 7,
+                        // ),
+                        Text(
+                          'Hello, ${authController.userName.value}',
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w600),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            myGroups(),
-          ],
+              StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(FirebaseAuth.instance.currentUser!.uid)
+                      .snapshots(),
+                  builder: (ctx, snapshot) {
+                    if (snapshot.hasData) {
+                      Map userDoc = snapshot.data!.data() as Map;
+                      print(userDoc);
+                      double totalCreditBalance = (userDoc['credit_wallet'] as Map).entries.fold(0.0, (previousValue, element) => previousValue+element.value);
+                          
+                      return CreditBalanceWidget(
+                          totalCreditBalance: totalCreditBalance);
+                    }
+                    return const CupertinoActivityIndicator();
+                  }),
+              pendingtransactions(),
+              const Padding(
+                padding: EdgeInsets.all(10),
+                child: Text(
+                  'Your Groups',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+              ),
+              myGroups(),
+            ],
+          ),
         ),
       ),
     );

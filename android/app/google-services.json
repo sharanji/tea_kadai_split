@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "211154357172-d1uqkf48vfo8hst3g09gcemugmf09hr2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tea_kadai_split",
+            "certificate_hash": "e5f718714f2e7bf133b8fca0e6f8472ed99662cb"
+          }
+        },
+        {
           "client_id": "211154357172-pbrs2l5km07thbh1brd7nm9jlcsi5ifs.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -47,10 +55,10 @@
               "client_type": 3
             },
             {
-              "client_id": "211154357172-nbeh0eassmg524r4n1ulm220hi6ntioj.apps.googleusercontent.com",
+              "client_id": "211154357172-6t969e41lbk2t3adm01fvhk6ed3ct8ai.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.teaKadaiSplit"
+                "bundle_id": "com.jesperapps.teakadaisplit"
               }
             }
           ]
