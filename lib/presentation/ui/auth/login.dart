@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // await FirebaseMessaging.instance.requestPermission();
                 var usercred = FirebaseAuth.instance.currentUser;
                 // var notificationtoken  =FirebaseMessaging.instance.getToken();
-                FirebaseFirestore.instance.collection('users').doc(usercred!.uid).set({
+                FirebaseFirestore.instance.collection('users').doc(usercred!.uid).update({
                   'name': usercred.displayName,
                   'email': usercred.email,
                   'photoUrl': usercred.photoURL,

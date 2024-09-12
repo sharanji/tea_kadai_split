@@ -10,9 +10,9 @@ class MyTheme {
 
   MyTheme(this.selectedFont);
 
-  final Color primaryColor = Color.fromARGB(255, 255, 10, 10);
-  final Color subPrimaryColor = Color.fromARGB(255, 255, 10, 10);
-  final Color lightAppBarColor = Color.fromARGB(255, 255, 114, 114);
+  final Color primaryColor = HexColor('#fe8953');
+  final Color subPrimaryColor = HexColor('#9B3922');
+  final Color lightAppBarColor = HexColor('#fe8953');
   final Color darkAppBarColor = Color(0xFF121212);
   final Color appBarTextColor = Colors.white;
 
@@ -47,10 +47,11 @@ class MyTheme {
 
   ThemeData get lightTheme => ThemeData(
         scaffoldBackgroundColor: Colors.white,
-        secondaryHeaderColor: Color.fromARGB(255, 20, 20, 20),
+        secondaryHeaderColor: HexColor('#343131'),
         fontFamily: selectedFont,
         primaryColor: primaryColor,
-        primaryColorLight: HexColor('#D6ECFF'),
+        primaryColorLight: Colors.white,
+        primaryColorDark: HexColor('#343131'),
         splashColor: Colors.grey,
         canvasColor: subPrimaryColor,
         scrollbarTheme: const ScrollbarThemeData().copyWith(
@@ -58,10 +59,10 @@ class MyTheme {
         ),
         textSelectionTheme: TextSelectionThemeData(
           cursorColor: primaryColor, // Cursor color
-           // Selection color
+          // Selection color
           selectionHandleColor: primaryColor, // Handle color
         ),
-        iconTheme: const IconThemeData(color: Colors.blue),
+        iconTheme: const IconThemeData(color: Colors.white),
         appBarTheme: AppBarTheme(
           toolbarHeight: 40,
           color: Colors.white,
@@ -73,7 +74,7 @@ class MyTheme {
             fontWeight: FontWeight.w600,
           ),
           toolbarTextStyle: TextStyle(
-            color: Colors.black,
+            color: Colors.white,
             fontFamily: selectedFont,
             fontSize: 18.0,
           ),

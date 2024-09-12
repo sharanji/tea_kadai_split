@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tea_kadai_split/presentation/ui/transaction/transaction_screen.dart';
 
 import 'dart:math';
 
 class TransactionReports {
-  static int sortCoparator(a, b) =>
-      ((b['credit'] * 1.0) - (a['credit'] * 1.0)).toInt();
+  static int sortCoparator(a, b) => ((b['credit'] * 1.0) - (a['credit'] * 1.0)).toInt();
 
   static Future openNewTransAction(groupId, groupInfo) async {
     // check for pending transactions
@@ -20,7 +20,11 @@ class TransactionReports {
 
     if (pendings.docs.isNotEmpty) {
       Get.snackbar(
-          'Transaction Running', "Your Group have a pending transaction");
+        'Transaction Running',
+        "Your Group have a pending transaction",
+        backgroundColor: Colors.white,
+        colorText: Colors.black,
+      );
       return;
     }
 
@@ -36,11 +40,10 @@ class TransactionReports {
       'participants': {}
     });
 
+    Get.back();
     Get.to(
       () => TransactionScreen(
-          groupName: groupInfo['name'],
-          groupId: groupId,
-          transactionRefid: transactionId.id),
+          groupName: groupInfo['name'], groupId: groupId, transactionRefid: transactionId.id),
     );
   }
 
@@ -57,8 +60,7 @@ class TransactionReports {
 
     for (int i = 0; i < docs.length; i++) {
       Map transactionData = docs[i].data();
-      List<MapEntry> participants =
-          (transactionData['participants'] as Map).entries.toList();
+      List<MapEntry> participants = (transactionData['participants'] as Map).entries.toList();
 
       for (var j = 0; j < participants.length; j++) {
         if (tally.containsKey(participants[j].key)) {
@@ -68,8 +70,7 @@ class TransactionReports {
         }
       }
       if (tally.containsKey(transactionData['initaited'])) {
-        tally[transactionData['initaited']] -=
-            transactionData['payable_amount'];
+        tally[transactionData['initaited']] -= transactionData['payable_amount'];
       }
     }
 
@@ -102,29 +103,21 @@ class TransactionReports {
         .collection('transactions')
         .doc(transactionRefid)
         .get();
-    List<MapEntry> participants =
-        transactions.data()!['participants']!.entries.toList();
+    List<MapEntry> participants = transactions.data()!['participants']!.entries.toList();
     String initedUserId = transactions.data()!['initaited'];
 
     for (var i = 0; i < participants.length; i++) {
       if (participants[i].key == initedUserId) {
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(participants[i].key)
-            .update(
+        FirebaseFirestore.instance.collection('users').doc(participants[i].key).update(
           {
             'credit_wallet.$groupId': FieldValue.increment(
-                -(transactions.data()!['payable_amount'] -
-                    participants[i].value)),
+                -(transactions.data()!['payable_amount'] - participants[i].value)),
           },
         );
         continue;
       }
 
-      FirebaseFirestore.instance
-          .collection('users')
-          .doc(participants[i].key)
-          .update(
+      FirebaseFirestore.instance.collection('users').doc(participants[i].key).update(
         {
           'credit_wallet.$groupId': FieldValue.increment(participants[i].value),
         },
@@ -132,8 +125,7 @@ class TransactionReports {
     }
   }
 
-  static List<Map> getUserTallys(
-      List<QueryDocumentSnapshot> creditWallets, String groupId) {
+  static List<Map> getUserTallys(List<QueryDocumentSnapshot> creditWallets, String groupId) {
     List<Map> credits = [];
     List<Map> debits = [];
 
@@ -178,6 +170,9 @@ class TransactionReports {
       if (credits[i]['credit'] == 0) i++;
       if (debits[j]['credit'] == 0) j++;
     }
+
+    print(credits);
+    print(debits);
 
     return transactions;
   }

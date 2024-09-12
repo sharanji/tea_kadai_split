@@ -45,6 +45,7 @@ dependencies:
   timeago: ^3.7.0
   slide_to_act: ^2.0.2
   hexcolor: ^3.0.1
+  syncfusion_flutter_charts:
   
 dev_dependencies:
   flutter_test:
