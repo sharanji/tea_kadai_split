@@ -26,19 +26,6 @@ class _LoginScreenState extends State<LoginScreen> {
           GestureDetector(
             onTap: () async {
               await signInWithGoogle();
-              if (FirebaseAuth.instance.currentUser != null) {
-                // await FirebaseMessaging.instance.requestPermission();
-                var usercred = FirebaseAuth.instance.currentUser;
-                // var notificationtoken  =FirebaseMessaging.instance.getToken();
-                FirebaseFirestore.instance.collection('users').doc(usercred!.uid).update({
-                  'name': usercred.displayName,
-                  'email': usercred.email,
-                  'photoUrl': usercred.photoURL,
-                  // 'notification_token':notificationtoken,
-                }).then((value) {
-                  Get.toEnd(() => const HomeScreen());
-                });
-              }
             },
             child: Container(
               width: double.infinity,
@@ -74,6 +61,24 @@ class _LoginScreenState extends State<LoginScreen> {
         idToken: googleAuth?.idToken,
       );
       await FirebaseAuth.instance.signInWithCredential(credential);
+
+      var usercred = FirebaseAuth.instance.currentUser;
+      // var notificationtoken  =FirebaseMessaging.instance.getToken();
+      Map userData = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(usercred!.uid)
+          .get()
+          .then((DocumentSnapshot value) => value.data() as Map);
+
+      await FirebaseFirestore.instance.collection('users').doc(usercred.uid).set({
+        'name': usercred.displayName,
+        'email': usercred.email,
+        'photoUrl': usercred.photoURL,
+        ...userData,
+        // 'notification_token':notificationtoken,
+      });
+
+      Get.toEnd(() => const HomeScreen());
 
       Get.snackbar(
         'Authentication Success',

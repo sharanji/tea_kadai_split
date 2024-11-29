@@ -7,11 +7,13 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:get/get_navigation/src/routes/get_transition_mixin.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:tea_kadai_split/models/group_options.dart';
 import 'package:tea_kadai_split/presentation/components/app_logo_header.dart';
 import 'package:tea_kadai_split/presentation/components/creditBalanceWidget.dart';
 import 'package:tea_kadai_split/presentation/components/navigation_bar.dart';
 import 'package:tea_kadai_split/presentation/controllers/auth_controller.dart';
 import 'package:tea_kadai_split/presentation/services/transaction_reports.dart';
+import 'package:tea_kadai_split/presentation/ui/invites/invites_screen.dart';
 import 'package:tea_kadai_split/presentation/ui/transaction/reports.dart';
 import 'package:tea_kadai_split/presentation/ui/transaction/transaction_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -33,21 +35,26 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: HexColor('#fe8953'),
         title: const Text('Tea Kadai Split'),
         actions: [
-          Container(
-            padding: const EdgeInsets.all(3),
-            decoration: BoxDecoration(
-              color: HexColor('#ff967a'),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.notifications_rounded,
-              color: Colors.white,
-              size: 20,
+          GestureDetector(
+            onTap: () {
+              Get.to(const GroupInvites());
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: HexColor('#ff967a'),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.group_add,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
           ),
           const SizedBox(width: 15),
           CircleAvatar(
-            radius: 12,
+            radius: 18,
             foregroundImage: NetworkImage(FirebaseAuth.instance.currentUser!.photoURL!),
           ),
           const SizedBox(width: 15),
@@ -82,7 +89,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         .snapshots(),
                     builder: (ctx, snapshot) {
                       if (snapshot.hasData) {
-                        Map userDoc = snapshot.data!.data() as Map;
+                        Map? userDoc = snapshot.data!.data();
+                        userDoc ??= {};
+
                         double yourCredit = 0;
                         double yourDebit = 0;
 
@@ -194,6 +203,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              if (groups.isEmpty)
+                const Center(
+                  child: Text('No Active Groups'),
+                ),
               ...groups.map(
                 (g) {
                   Map<dynamic, dynamic> groupInfo = g.data() as Map;
@@ -230,32 +243,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                             GestureDetector(
-                              onTap: () async {
-                                Get.to(
-                                  () => GroupReports(
-                                    groupName: groupInfo['name'],
-                                    groupId: g.id,
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  'Reports',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
                               onTap: () {
                                 Get.defaultDialog(
                                     content: const Text('Do You want to Pay Bill ?'),
@@ -273,11 +260,63 @@ class _HomeScreenState extends State<HomeScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text(
-                                  'Pay Bill',
+                                  '₹ Pay Bill',
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: Theme.of(context).primaryColorLight,
                                   ),
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                Get.bottomSheet(
+                                  Wrap(
+                                    children: [
+                                      Container(
+                                        // height: 230,
+                                        padding: EdgeInsets.all(20),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(15),
+                                            topRight: Radius.circular(15),
+                                          ),
+                                        ),
+                                        child: Column(
+                                          children: GroupOptions.options
+                                              .map((option) => ListTile(
+                                                    onTap: () {
+                                                      option.taphandler(groupInfo, g.id);
+                                                    },
+                                                    title: Text(option.title),
+                                                    subtitle: Text(option.description),
+                                                    trailing: const Icon(Icons.chevron_right),
+                                                  ))
+                                              .toList(),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                // Get.to(
+                                //   () => GroupReports(
+                                //     groupName: groupInfo['name'],
+                                //     groupId: g.id,
+                                //   ),
+                                // );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  Icons.more_horiz,
+                                  color: Theme.of(context).primaryColor,
                                 ),
                               ),
                             ),

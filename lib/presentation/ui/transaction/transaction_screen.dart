@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -79,7 +77,9 @@ class _TransactionScreenState extends State<TransactionScreen> {
                             builder: (ctx, snapshot) {
                               if (snapshot.hasData) {
                                 return Text(
-                                  snapshot.data!.data()!['name'],
+                                  snapshot.data!.data() == null
+                                      ? ""
+                                      : snapshot.data!.data()!['name'],
                                 );
                               }
                               return const CupertinoActivityIndicator();
@@ -272,7 +272,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
           return const CupertinoActivityIndicator();
         }
 
-        Map userInfo = snapshot.data!.data() as Map;
+        Map userInfo = snapshot.data!.data() ?? {};
 
         return Dismissible(
           key: Key(transaction.key),
@@ -301,9 +301,9 @@ class _TransactionScreenState extends State<TransactionScreen> {
           ),
           child: ListTile(
             leading: CircleAvatar(
-              foregroundImage: NetworkImage(userInfo['photoUrl']),
+              foregroundImage: NetworkImage(userInfo['photoUrl'] ?? ""),
             ),
-            title: Text(userInfo['name']),
+            title: Text(userInfo['name'] ?? "--"),
             trailing: Text(
               '₹ ${transaction.value.toStringAsFixed(2)}',
               style: const TextStyle(fontSize: 18),

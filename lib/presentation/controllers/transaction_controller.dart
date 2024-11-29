@@ -34,8 +34,7 @@ class TransactionController extends GetxController {
         .get()
         .then((value) => value.docs);
 
-    List<Map> tallyTransactions =
-        TransactionReports.getUserTallys(members, grpId);
+    List<Map> tallyTransactions = TransactionReports.getUserTallys(members, grpId);
     return tallyTransactions;
   }
 }

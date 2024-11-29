@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:tea_kadai_split/presentation/components/navigation_bar.dart';
@@ -33,8 +35,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ),
-          Column(
-            children: [],
+          SafeArea(
+            child: Column(
+              children: [
+                CircleAvatar(
+                  foregroundImage: NetworkImage(FirebaseAuth.instance.currentUser!.photoURL!),
+                ),
+                ListTile(
+                  onTap: () {
+                    FirebaseAuth.instance.signOut();
+                  },
+                  title: const Text('Logout Account'),
+                  trailing: const Icon(Icons.logout),
+                ),
+                const Divider(),
+              ],
+            ),
           ),
         ],
       ),

@@ -57,7 +57,24 @@ class AuthController extends GetxController {
       userName.value = userDoc['name'];
       photoUrl.value = userDoc['photoUrl'];
       userDetails.value = userDoc.data()! as Map;
-     
+    }
+  }
+
+  Future<int> getInviteCounts() async {
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+
+      AggregateQuerySnapshot aggregateQuery = await FirebaseFirestore.instance
+          .collection("invites")
+          .where("userId", isEqualTo: userId)
+          .count()
+          .get();
+
+      int count = aggregateQuery.count!;
+
+      return count;
+    } catch (e) {
+      return 0;
     }
   }
 }
